@@ -33,54 +33,7 @@ $("#submitPostButton").click(async (event)=>{
     button.prop("disabled",true);
 })
 
-const micIcon = document.getElementById('micIcon');
-let isRecording = false
-let timer = undefined
-micIcon.addEventListener('click', (e)=>{
-    if (isRecording){
-        stopRecording()
-        return
-    }
-    isRecording = true
-    let i = 5
-    micIcon.innerHTML = `<i class="fas mic" style="color: white;">${i}</i>`
-    timer = setInterval(()=>{
-        i--;
-        if (i < 1){
-            startRecording()
-            clearInterval(timer)
-            return
-        }
-        micIcon.innerHTML = `<i class="fas mic" style="color: white;">${i}</i>`
-    }, 1000)
-    
-})
-let interval = undefined
-function startRecording(){
-    let seconds = 0, minutes = 0;
-    var recordingTime = "00:00"
-    micIcon.innerHTML =`<i class="fas fa-microphone mic" style="color: red;"></i>
-                    <i class="fas mic" style="color: red;">00:00</i>`
-    interval = setInterval(()=>{
 
-        seconds++;
-        minutes = Math.round(seconds/60)
-        if (minutes < 10){
-            recordingTime = seconds%60 < 10 ? `0${minutes}:0${seconds%60}` : `0${minutes}:${seconds%60}`
-        }else{
-            recordingTime = seconds%60 < 10 ? `${minutes}:0${seconds%60}` :  `${minutes}:${seconds%60}`
-        }
-        micIcon.innerHTML =`<i class="fas fa-microphone mic" style="color: red;"></i>
-                    <i class="fas mic" style="color: red;">${recordingTime}</i>`
-    }, 1000)
-}
-
-function stopRecording(){
-    isRecording = false
-    micIcon.innerHTML =`<i class="fas fa-microphone mic" style="color: white;"></i>`
-    clearInterval(interval)
-    clearInterval(timer)
-}
 
 $(document).on("click", ".likeButton", async (e)=>{
     const button = $(e.target)
