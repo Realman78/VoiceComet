@@ -14,6 +14,7 @@ var recordButton = document.getElementById("micIcon");
 //add events to those 2 buttons
 recordButton.addEventListener("click", startRecording);
 var isRec = false
+var isCountdown = false
 var timer = undefined
 function startRecording() {
     if (isRec){
@@ -21,8 +22,8 @@ function startRecording() {
         return
     }
     isRec = true
-	
-    let i = 5
+	isCountdown = true
+    let i = 1
     micIcon.innerHTML = `<i class="fas mic" style="color: white;">${i}</i>`
     timer = setInterval(()=>{
         i--;
@@ -38,8 +39,8 @@ function startRecording() {
 }
 let interval = undefined
 function startTiming(){
+    isCountdown = false
     var constraints = { audio: true, video:false }
-
 	navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
 		console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
 
@@ -94,19 +95,19 @@ function pauseRecording(){
 function stopRecording() {
 	console.log("stopButton clicked")
     isRec = false
-	rec.stop();
-    recordButton.innerHTML =`<i class="fas fa-microphone mic" style="color: white;"></i>`
-    clearInterval(interval)
     clearInterval(timer)
+    recordButton.innerHTML =`<i class="fas fa-microphone mic" style="color: white;"></i>`
+    if (isCountdown) return
+    clearInterval(interval)
+    rec.stop();
 	gumStream.getAudioTracks()[0].stop();
-
 	rec.exportWAV(createDownloadLink);
 }
 
 const recordingsList = document.getElementById('recordingsList')
-
+var blob2 = undefined
 function createDownloadLink(blob) {
-	
+    blob2 = blob
 	var url = URL.createObjectURL(blob);
 	var au = document.createElement('audio');
 
