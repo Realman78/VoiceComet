@@ -248,6 +248,10 @@ button span {
 .post.largeFont .postFooter {
   font-size: 24px;
 }
+.postBody {
+  display: flex;
+  flex-direction: column;
+}
 .postContentContainer .header {
   display: flex;
 }
@@ -256,4 +260,7 @@ button span {
 }
 .mic {
   padding-left: 20px;
+}
+.audioContainer {
+  margin-top: 10px;
 }

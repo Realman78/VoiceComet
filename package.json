@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "blob-to-buffer": "^1.2.9",
+    "cloudinary": "^1.25.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "gridfs-stream": "^1.1.1",

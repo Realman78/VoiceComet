@@ -21,6 +21,7 @@ async function post(body){
         body: JSON.stringify(body)
     })
     const data = await res.json()
+    console.log(data)
     return data
 }
 
@@ -28,8 +29,8 @@ $("#submitPostButton").click(async (event)=>{
     const textbox = $("#postTextarea")
     var button = $(event.target)
     let audioFile = ""
+    button.prop("disabled", true)
     if (recordingsList.hasChildNodes()){
-        //audioFile = recordingsList.firstChild.src.substr(5)
         var file = blob2
         var reader = new FileReader();
         reader.readAsDataURL(file); // this is reading as data url
@@ -51,14 +52,26 @@ $("#submitPostButton").click(async (event)=>{
 })
 async function putPostOnWall(data, button){
     const textbox = $("#postTextarea")
-    const html = await createPostHtml(data)
+    const html = createPostHtml(data)
     $(".postsContainer").prepend(html);
     textbox.val('')
     button.prop("disabled",true);
     document.getElementById('recordingsList').innerHTML = ''
 }
-
-
+//OVO JE ZA DELETE POST
+// $(document).on("click", ".postBody", (ev)=>{
+//     const postId = getPostId($(ev.target))
+//     fetch('/api/posts/' + postId,{
+//         method: "DELETE",
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Accept': 'application/json'
+//             }
+//     }).then(res=>{
+//         location.reload()
+//     })
+//     .catch(e=>{console.log(e)})
+// })
 
 $(document).on("click", ".likeButton", async (e)=>{
     const button = $(e.target)
@@ -95,56 +108,8 @@ function getPostId(el){
     if (postId === undefined) return alert("Error")
     return postId
 }
-var BASE64_MARKER = ';base64,';
 
-function convertDataURIToBinary(dataURI) {
-  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-  var base64 = dataURI.substring(base64Index);
-  var raw = window.atob(base64);
-  var rawLength = raw.length;
-  var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-  for(i = 0; i < rawLength; i++) {
-    array[i] = raw.charCodeAt(i);
-  }
-  return array;
-}
-// $(document).on("click", ".postBody", async (e)=>{
-//     const postId = getPostId($(e.target))
-//     const res = await fetch('/api/posts/' + postId)
-//     const data = await res.blob()
-
-//     var reader = new FileReader();
-//     reader.onload = function() {
-//         console.log(reader.result);
-//         var binary= convertDataURIToBinary(reader.result);
-//         var blob=new Blob([binary], {type : 'audio/ogg'});
-//         var blobUrl = URL.createObjectURL(blob);
-//         return `<span><audio controls="" src="${blobUrl}"></audio></span>`
-//     }
-//     reader.readAsText(data);
-    
-//})
-
-async function getAudioElement(postId){
-    const res = await fetch('/api/posts/' + postId)
-    const data = await res.blob()
-
-    let r = `<span><audio controls="" src="" id="audio-${postId}"></audio></span>`
-    var reader = new FileReader();
-    reader.readAsText(data);
-    reader.onload = async function() {
-        var binary= convertDataURIToBinary(reader.result);
-        var blob=new Blob([binary], {type : 'audio/wav'});
-        var blobUrl = URL.createObjectURL(blob);
-        document.getElementById('audio-'+postId).src = blobUrl
-        //r = `<span><audio controls="" src="${blobUrl}"></audio></span>`
-    }
-    
-    return r
-}
-
-async function createPostHtml(postData, largeFont = false) {
+function createPostHtml(postData, largeFont = false) {
     if (!postData) return alert("Post object is null")
 
     var postedBy = postData.postedBy;
@@ -157,7 +122,7 @@ async function createPostHtml(postData, largeFont = false) {
 
     var audioPart = ''
     if (postData.audioFile){
-        audioPart = await getAudioElement(postData._id)
+        audioPart = `<span class='audioContainer'><audio controls="" src="${postData.audioFile}"></audio></span>`
     }
 
     const likeButtonActiveCLass = postData.likes.includes(userLoggedIn._id) ? "active": ""
@@ -218,19 +183,23 @@ function timeDifference(current, previous) {
     }
 
     else if (elapsed < msPerHour) {
-         return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+        let minutes = Math.round(elapsed/msPerMinute)
+        return minutes > 1 ? minutes + ' minutes ago': minutes + ' minute ago';  
     }
 
     else if (elapsed < msPerDay ) {
-         return Math.round(elapsed/msPerHour ) + ' hours ago';   
+        let hours = Math.round(elapsed/msPerHour)
+        return hours > 1 ? hours + ' hours ago': hours + ' hour ago';   
     }
 
     else if (elapsed < msPerMonth) {
-        return Math.round(elapsed/msPerDay) + ' days ago';   
+        let days = Math.round(elapsed/msPerDay)
+        return days > 1 ? days + ' days ago': days + ' day ago';   
     }
 
     else if (elapsed < msPerYear) {
-        return Math.round(elapsed/msPerMonth) + ' months ago';   
+        let months = Math.round(elapsed/msPerMonth)
+        return months > 1 ? months + ' months ago': months + ' month ago';   
     }
 
     else {
@@ -238,22 +207,14 @@ function timeDifference(current, previous) {
     }
 }
 
-async function outputPosts(results, container){
-    //container.html("")
+function outputPosts(results, container){
     container.innerHTML = ''
-    //for(let i = 0; i < results.length;  i++) {
     for(let i in results) {
         let result = results[i];
-        var html = await createPostHtml(result)
+        var html = createPostHtml(result)
         
         container.innerHTML += html
     }
-    /*results.forEach(async result => {
-        console.log(timeDifference(new Date(),new Date(result.createdAt)));
-        var html = await createPostHtml(result)
-        
-        container.innerHTML += html
-    });*/
     if (results.length == 0){
         container.append("<span class='noResults'>No results found</span>")
     }

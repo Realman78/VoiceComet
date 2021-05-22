@@ -10,7 +10,8 @@ const PostSchema = new Schema({
     shareUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     shareData: { type: Schema.Types.ObjectId, ref: 'Post' },
     replyTo: { type: Schema.Types.ObjectId, ref: 'Post' },
-    audioFile: { type: Buffer }
+    audioFile: { type: String },
+    audioID: { type: String }
 }, { timestamps: true })
 
 var Post = mongoose.model('Post', PostSchema)

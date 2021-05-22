@@ -17,12 +17,20 @@ var isRec = false
 var isCountdown = false
 var timer = undefined
 function startRecording() {
+    if (recordingsList.hasChildNodes()){
+        if (confirm('Are you sure you want to delete the previous audio and record a new one?')){
+            recordingsList.innerHTML = ''
+        }else{
+            return;
+        }
+    }
     if (isRec){
         stopRecording()
         return
     }
     isRec = true
 	isCountdown = true
+    $("#submitPostButton").prop("disabled", true)
     let i = 1
     micIcon.innerHTML = `<i class="fas mic" style="color: white;">${i}</i>`
     timer = setInterval(()=>{
@@ -67,7 +75,7 @@ function startTiming(){
     interval = setInterval(()=>{
 
         seconds++;
-        minutes = Math.round(seconds/60)
+        minutes = parseInt(seconds/60)
         if (minutes < 10){
             recordingTime = seconds%60 < 10 ? `0${minutes}:0${seconds%60}` : `0${minutes}:${seconds%60}`
         }else{
@@ -97,6 +105,8 @@ function stopRecording() {
     isRec = false
     clearInterval(timer)
     recordButton.innerHTML =`<i class="fas fa-microphone mic" style="color: white;"></i>`
+    if ($("#postTextarea").val() != '')
+        $("#submitPostButton").prop("disabled", false)
     if (isCountdown) return
     clearInterval(interval)
     rec.stop();
