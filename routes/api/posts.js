@@ -85,11 +85,49 @@ router.put('/:id/like', async (req,res)=>{
     res.status(200).send(post)
 })
 
+router.post('/:id/share', async (req,res)=>{
+    const postId = req.params.id
+    const userId = req.session.user._id
+    
+    //Try and delete retweet
+    var deletedPost = await Post.findOneAndDelete({postedBy: userId, shareData: postId})
+    .catch((err=>{
+        console.log(err)
+    }))
+
+    var option = deletedPost != null ? "$pull" : "$addToSet"
+
+    var repost = deletedPost;
+    if (repost == null){
+        repost = await Post.create({postedBy: userId, shareData: postId})
+        .catch((err=>{
+        console.log(err)
+    }))
+    }
+    
+    req.session.user = await User.findByIdAndUpdate(userId, { [option]: { sharedPosts: repost._id } }, { new: true })
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400);
+    })
+
+   
+    var post = await Post.findByIdAndUpdate(postId, { [option]: { shareUsers: userId } }, { new: true })
+    .catch(error => {
+        console.log(error);
+        res.sendStatus(400);
+    })
+
+    res.status(200).send(post)
+})
 async function getPosts(filter){
-    return await Post.find(filter)
+    var results = await Post.find(filter)
     .populate("postedBy")
+    .populate("shareData")
     .sort({ "createdAt": -1 })
     .catch(error => console.log(error))
+
+    return await User.populate(results, { path: "shareData.postedBy"});
 }
 
 

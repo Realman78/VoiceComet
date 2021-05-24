@@ -101,6 +101,32 @@ $(document).on("click", ".likeButton", async (e)=>{
     })
 })
 
+$(document).on("click", ".retweetButton", async (e)=>{
+    const button = $(e.target)
+    const postId = getPostId(button)
+
+    if (postId === undefined) return;
+    fetch(`/api/posts/${postId}/share`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }).then(async (res)=>{
+        const data = await res.json()
+        button.find("span").text(data.shareUsers.length || "")
+
+        if (data.shareUsers.includes(userLoggedIn._id)){
+            button.addClass("active")
+        }else{
+            button.removeClass("active")
+        }
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+})
+
 function getPostId(el){
     var isRoot = el.hasClass("post")
     const rootEl = isRoot ? el : el.closest(".post")
@@ -111,6 +137,10 @@ function getPostId(el){
 
 function createPostHtml(postData, largeFont = false) {
     if (!postData) return alert("Post object is null")
+
+    const isShare = postData.shareData !== undefined;
+    const sharedBy = isShare ? postData.postedBy.username : null
+    postData = isShare ? postData.shareData : postData;
 
     var postedBy = postData.postedBy;
 
@@ -126,8 +156,20 @@ function createPostHtml(postData, largeFont = false) {
     }
 
     const likeButtonActiveCLass = postData.likes.includes(userLoggedIn._id) ? "active": ""
+    const shareButtonActiveCLass = postData.shareUsers.includes(userLoggedIn._id) ? "active": ""
+
+    var shareText = ''
+    if (isShare){
+        shareText = `<span>
+                <i class='fas fa-retweet'></i>
+                Shared by <a href='/profile/${sharedBy}'>@${sharedBy}</a>
+            </span>`
+    }
 
     return `<div class='post' data-id='${postData._id}'>
+                <div class='postActionContainer'>
+                    ${shareText}
+                </div>
                 <div class='mainContentContainer'>
                     <div class='userImageContainer'>
                         <img src='${postedBy.profilePic}'>
@@ -149,8 +191,9 @@ function createPostHtml(postData, largeFont = false) {
                                 </button>
                             </div>
                             <div class='postButtonContainer green'>
-                                <button class='retweetButton'>
+                                <button class='retweetButton ${shareButtonActiveCLass}'>
                                     <i class='fas fa-retweet'></i>
+                                    <span>${postData.shareUsers.length || ""}</span>
                                 </button>
                             </div>
                             <div class='postButtonContainer red'>
