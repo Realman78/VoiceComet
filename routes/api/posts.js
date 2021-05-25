@@ -21,6 +21,21 @@ router.get('/', async (req,res)=>{
     res.send(await getPosts({}))
 })
 
+router.get('/:id', async (req,res)=>{
+    var postData = await getPosts({_id: req.params.id})
+    postData = postData[0]
+
+    var results = {
+        postData
+    }
+    if (postData.replyTo !== undefined){
+        results.replyTo = postData.replyTo
+    }
+    results.replies = await getPosts({replyTo: req.params.id})
+    res.send(results)
+})
+
+
 router.delete('/:id', async (req,res)=>{
     const post = await Post.findByIdAndDelete(req.params.id)
     if (post.audioID)
@@ -41,7 +56,10 @@ router.post('/', upload.single('audioFile'),  async (req,res)=>{
     if (!req.body.content){
         return res.status(400).send()
     }
-    let postData = {}
+    let postData = {
+        content: req.body.content,
+        postedBy: req.session.user,
+    }
     if (req.body.audioFile){
         const uploaded = await cloudinary.uploader.upload(req.body.audioFile, 
             {resource_type: 'video'},
@@ -50,17 +68,11 @@ router.post('/', upload.single('audioFile'),  async (req,res)=>{
                 console.log(error)
             }
         });
-        postData = {
-            content: req.body.content,
-            postedBy: req.session.user,
-            audioID: uploaded.public_id,
-            audioFile: uploaded.url,
-        }
-    }else{
-        postData = {
-        content: req.body.content,
-        postedBy: req.session.user,
-        }
+        postData.audioID = uploaded.public_id
+        postData.audioFile = uploaded.url
+    }
+    if (req.body.replyTo){
+        postData.replyTo = req.body.replyTo
     }
     
     let post = await Post.create(postData).catch(e=>{console.log(e)})
@@ -120,13 +132,15 @@ router.post('/:id/share', async (req,res)=>{
 
     res.status(200).send(post)
 })
-async function getPosts(filter){
+async function getPosts(filter) {
     var results = await Post.find(filter)
     .populate("postedBy")
     .populate("shareData")
+    .populate("replyTo")
     .sort({ "createdAt": -1 })
     .catch(error => console.log(error))
 
+    results = await User.populate(results, { path: "replyTo.postedBy"})
     return await User.populate(results, { path: "shareData.postedBy"});
 }
 

@@ -1,14 +1,19 @@
-$("#postTextarea").keyup(event =>{
-    const textbox = event.target
-    const value = textbox.value.trim()
+$("#postTextarea, #replyTextArea").keyup(event =>{
+    var textbox = $(event.target);
+    var value = textbox.val().trim();
 
-    const submitButton = $("#submitPostButton");
+    var isModal = textbox.parents(".modal").length == 1;
+    
+    submitButton = isModal ? $("#submitReplyButton") : $("#submitPostButton");
 
-    if (value == ""){
+    if(submitButton.length == 0) return alert("No submit button found");
+
+    if (value == "") {
         submitButton.prop("disabled", true);
         return;
     }
-    submitButton.prop("disabled", false)
+
+    submitButton.prop("disabled", false);
 })
 
 async function post(body){
@@ -25,32 +30,36 @@ async function post(body){
     return data
 }
 
-$("#submitPostButton").click(async (event)=>{
-    const textbox = $("#postTextarea")
+$("#submitPostButton, #submitReplyButton").click(async (event)=>{
     var button = $(event.target)
+    var isModal = button.parents(".modal").length == 1;
+    var textbox = isModal ? $("#replyTextArea") : $("#postTextarea")
     let audioFile = ""
     button.prop("disabled", true)
+    const body = {
+        content: textbox.val(),
+    }
+    if (isModal){
+        var id = button.data().id
+        if (id == null) return alert("error")
+        body.replyTo = id
+    }
     if (recordingsList.hasChildNodes()){
         var file = blob2
         var reader = new FileReader();
         reader.readAsDataURL(file); // this is reading as data url
         reader.onload = async (readerEvent) => {    
             audioFile = readerEvent.target.result; // this is the content!
-            const body = {
-                content: textbox.val(),
-                audioFile
-            }
+            body.audioFile = audioFile
             await putPostOnWall(await post(body), button)
         }
     }else{
-        const body = {
-            content: textbox.val(),
-        }
         await putPostOnWall(await post(body), button)
     }
 
 })
 async function putPostOnWall(data, button){
+    if (data.replyTo) return location.reload()
     const textbox = $("#postTextarea")
     const html = createPostHtml(data)
     $(".postsContainer").prepend(html);
@@ -127,6 +136,21 @@ $(document).on("click", ".retweetButton", async (e)=>{
     })
 })
 
+$("#replyModal").on("show.bs.modal", async (event)=>{
+    const button = $(event.relatedTarget)
+    const postId = getPostId(button)
+    $("#submitReplyButton").data("id", postId)
+    let OGPostConteiner = document.getElementById('originalPostContainer')
+    
+    const res = await fetch('/api/posts/' + postId)
+    const data = await res.json()
+    outputPosts(data.postData, OGPostConteiner)
+})
+$("#replyModal").on("hidden.bs.modal", (event)=>{
+    let OGPostConteiner = document.getElementById('originalPostContainer')
+    OGPostConteiner.innerHTML = ''
+})
+
 function getPostId(el){
     var isRoot = el.hasClass("post")
     const rootEl = isRoot ? el : el.closest(".post")
@@ -165,6 +189,20 @@ function createPostHtml(postData, largeFont = false) {
                 Shared by <a href='/profile/${sharedBy}'>@${sharedBy}</a>
             </span>`
     }
+    var replyFlag = ""
+
+    if (postData.replyTo && postData.replyTo._id){
+        if(!postData.replyTo._id) {
+            return alert("Reply to is not populated");
+        }
+        else if(!postData.replyTo.postedBy._id) {
+            return alert("Posted by is not populated");
+        }
+        const replyToUsername = postData.replyTo.postedBy.username
+        replyFlag = `<div class='replyFlag'>
+                        Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
+                    </div>`
+    }
 
     return `<div class='post' data-id='${postData._id}'>
                 <div class='postActionContainer'>
@@ -180,13 +218,14 @@ function createPostHtml(postData, largeFont = false) {
                             <span class='username'>@${postedBy.username}</span>
                             <span class='date'>${timestamp}</span>
                         </div>
+                        ${replyFlag}
                         <div class='postBody'>
                             <span>${postData.content}</span>
                             ${audioPart}
                         </div>
                         <div class='postFooter'>
                             <div class='postButtonContainer'>
-                                <button data-toggle='modal' data-target='#replyModal'>
+                                <button data-toggle='modal' data-target='#replyModal' class='replyButton'>
                                     <i class='far fa-comment'></i>
                                 </button>
                             </div>
@@ -251,13 +290,16 @@ function timeDifference(current, previous) {
 }
 
 function outputPosts(results, container){
-    container.innerHTML = ''
-    for(let i in results) {
-        let result = results[i];
-        var html = createPostHtml(result)
-        
-        container.innerHTML += html
+    if (!Array.isArray(results)){
+        results = [results]
     }
+
+    //container.html("")
+    container.innerHTML = ''
+    results.forEach(result => {
+        var html = createPostHtml(result)
+        container.innerHTML += html
+    });
     if (results.length == 0){
         container.append("<span class='noResults'>No results found</span>")
     }

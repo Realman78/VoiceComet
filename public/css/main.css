@@ -107,11 +107,29 @@ button span {
   border: none;
   padding: 0;
   padding-top: var(--spacing);
+  color: white;
 }
-
+.modal {
+  background-color: transparent;
+}
+.modal-dialog {
+  background-color: transparent;
+}
 .modal .post {
   padding: 0px;
   padding-bottom: var(--spacing);
+}
+.modal-content {
+  color: white;
+  background-color: transparent;
+}
+.modal-header {
+  border-top-left-radius: calc(1.3rem - 1px);
+  border-top-right-radius: calc(1.3rem - 1px);
+}
+.modal-footer {
+  border-bottom-left-radius: calc(1.3rem - 1px);
+  border-bottom-right-radius: calc(1.3rem - 1px);
 }
 
 .userImageContainer {
