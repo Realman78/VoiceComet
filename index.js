@@ -19,15 +19,23 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 const registerRouter = require('./routes/registerRouter')
 const loginRouter = require('./routes/loginRouter')
-app.use('/register', registerRouter)
+const postRoute = require('./routes/postRouter')
+const profileRouter = require('./routes/profileRouter')
+const logoutRoute = require('./routes/logout')
 app.use('/login', loginRouter)
-
+app.use('/register', registerRouter)
+app.use('/posts',requestLogin, postRoute)
+app.use('/profile',requestLogin, profileRouter)
+app.use('/logout', logoutRoute)
 //Api routes
 const postApiRoute = require('./routes/api/posts')
 app.use('/api/posts', postApiRoute)
 
 
-app.get('/', requestLogin, (req, res)=>{
+app.get('/', requestLogin, (req,res,next)=>{
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    next()
+}, (req, res)=>{
     const payload = {
         title: 'Home',
         loggedUser: req.session.user,
@@ -35,6 +43,7 @@ app.get('/', requestLogin, (req, res)=>{
     }
     res.render('home', payload)
 })
+
 
 
 

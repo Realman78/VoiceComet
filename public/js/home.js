@@ -3,5 +3,4 @@ $(document).ready(async ()=>{
     const data = await res.json()
     const postsContainer = document.querySelector('.postsContainer')
     outputPosts(data, postsContainer)
-    
 })

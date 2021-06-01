@@ -1,3 +1,5 @@
+const recordingsList = document.getElementById('recordingsList')
+
 $("#postTextarea, #replyTextArea").keyup(event =>{
     var textbox = $(event.target);
     var value = textbox.val().trim();
@@ -44,7 +46,7 @@ $("#submitPostButton, #submitReplyButton").click(async (event)=>{
         if (id == null) return alert("error")
         body.replyTo = id
     }
-    if (recordingsList.hasChildNodes()){
+    if (recordingsList && recordingsList.hasChildNodes()){
         var file = blob2
         var reader = new FileReader();
         reader.readAsDataURL(file); // this is reading as data url
@@ -68,19 +70,37 @@ async function putPostOnWall(data, button){
     document.getElementById('recordingsList').innerHTML = ''
 }
 //OVO JE ZA DELETE POST
-// $(document).on("click", ".postBody", (ev)=>{
-//     const postId = getPostId($(ev.target))
-//     fetch('/api/posts/' + postId,{
-//         method: "DELETE",
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Accept': 'application/json'
-//             }
-//     }).then(res=>{
-//         location.reload()
-//     })
-//     .catch(e=>{console.log(e)})
-// })
+$("#deletePostButton").click(()=>{
+    const id = $(event.target).data("id");
+
+    fetch(`/api/posts/${id}`, {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }).then(async ()=>{
+        location.reload()
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+})
+$("#deletePostModal").on("show.bs.modal", async (event)=>{
+    const button = $(event.relatedTarget)
+    const postId = getPostId(button)
+    $("#deletePostButton").data("id", postId)
+})
+
+$(document).on("click", ".post", (ev)=>{
+    const element = $(ev.target)
+    const postId = getPostId(element)
+
+    if (postId !== undefined && !element.is("button")){
+        console.log('heok')
+        window.location.href = '/posts/' + postId
+    }
+})
 
 $(document).on("click", ".likeButton", async (e)=>{
     const button = $(e.target)
@@ -162,7 +182,7 @@ function getPostId(el){
 function createPostHtml(postData, largeFont = false) {
     if (!postData) return alert("Post object is null")
 
-    const isShare = postData.shareData !== undefined;
+    const isShare = postData.shareData !== undefined && postData.shareData;
     const sharedBy = isShare ? postData.postedBy.username : null
     postData = isShare ? postData.shareData : postData;
 
@@ -181,6 +201,7 @@ function createPostHtml(postData, largeFont = false) {
 
     const likeButtonActiveCLass = postData.likes.includes(userLoggedIn._id) ? "active": ""
     const shareButtonActiveCLass = postData.shareUsers.includes(userLoggedIn._id) ? "active": ""
+    var largeFontClass = largeFont ? "largeFont" : ""
 
     var shareText = ''
     if (isShare){
@@ -204,10 +225,13 @@ function createPostHtml(postData, largeFont = false) {
                     </div>`
     }
 
-    return `<div class='post' data-id='${postData._id}'>
-                <div class='postActionContainer'>
-                    ${shareText}
-                </div>
+    var buttons = ""
+    if (postData.postedBy._id == userLoggedIn._id && !isShare){
+        buttons = `<button data-id="${postData._id}" class="trashCanButton" data-toggle="modal" data-target="#deletePostModal"><i class="fas fa-trash"></i></button>`
+    }
+
+    return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
+                <div class='postActionContainer'>${shareText}</div>
                 <div class='mainContentContainer'>
                     <div class='userImageContainer'>
                         <img src='${postedBy.profilePic}'>
@@ -217,6 +241,7 @@ function createPostHtml(postData, largeFont = false) {
                             <a href='/profile/${postedBy.username}' class='displayName'>${displayName}</a>
                             <span class='username'>@${postedBy.username}</span>
                             <span class='date'>${timestamp}</span>
+                            ${buttons}
                         </div>
                         ${replyFlag}
                         <div class='postBody'>
@@ -224,7 +249,7 @@ function createPostHtml(postData, largeFont = false) {
                             ${audioPart}
                         </div>
                         <div class='postFooter'>
-                            <div class='postButtonContainer'>
+                            <div class='postButtonContainer blue'>
                                 <button data-toggle='modal' data-target='#replyModal' class='replyButton'>
                                     <i class='far fa-comment'></i>
                                 </button>
@@ -298,6 +323,25 @@ function outputPosts(results, container){
     container.innerHTML = ''
     results.forEach(result => {
         var html = createPostHtml(result)
+        container.innerHTML += html
+    });
+    if (results.length == 0){
+        container.append("<span class='noResults'>No results found</span>")
+    }
+}
+
+function outputPostsWithReplies(results, container){
+    container.innerHTML = ''
+    if (results.replyTo !== undefined && results.replyTo._id !== undefined){
+        const html = createPostHtml(results.replyTo)
+        container.innerHTML += html
+    }
+
+    var mainPostHTML = createPostHtml(results.postData, true)
+    container.innerHTML += mainPostHTML
+
+    results.replies.forEach(result => {
+        const html = createPostHtml(result)
         container.innerHTML += html
     });
     if (results.length == 0){

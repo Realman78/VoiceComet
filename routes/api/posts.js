@@ -18,7 +18,13 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 
 router.get('/', async (req,res)=>{
-    res.send(await getPosts({}))
+    var searchObj = req.query
+    if (searchObj.isReply !== undefined){
+        var isReply = searchObj.isReply == "true"
+        searchObj.replyTo = {$exists: isReply}
+        delete searchObj.isReply
+    }
+    res.send(await getPosts(searchObj))
 })
 
 router.get('/:id', async (req,res)=>{

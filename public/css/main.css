@@ -1,7 +1,7 @@
 :root {
   --blue: #1fa2f1;
   --blueLight: #9bd1f9;
-  --buttonHoverBg: #d4edff;
+  --buttonHoverBg: #03406b;
   --lightGrey: rgb(230, 236, 240);
   --spacing: 15px;
   --greyText: rgb(101, 119, 134);
@@ -10,11 +10,12 @@
   --green: rgb(23, 191, 99);
   --greenBackground: rgba(23, 191, 99, 0.1);
   --redBackground: rgba(226, 34, 94, 0.1);
+  --border-black: rgb(58, 70, 78);
 }
 
 * {
   outline: none !important;
-  background-color: #00233a;
+  background-color: #192329;
 }
 
 a {
@@ -22,7 +23,7 @@ a {
 }
 
 a:hover {
-  color: inherit;
+  color: rgb(187, 187, 187);
   text-decoration: none;
 }
 
@@ -61,6 +62,7 @@ nav a:hover {
   border-radius: 50%;
 }
 nav a:hover > i {
+  color: #1fa2f1;
   background-color: var(--buttonHoverBg);
 }
 
@@ -77,8 +79,8 @@ button span {
 
 .mainSectionContainer {
   padding: 0;
-  border-left: 1px solid var(--lightGrey);
-  border-right: 1px solid var(--lightGrey);
+  border-left: 1px solid var(--border-black);
+  border-right: 1px solid var(--border-black);
   display: flex;
   flex-direction: column;
 }
@@ -88,7 +90,7 @@ button span {
   padding: 0 var(--spacing);
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--lightGrey);
+  border-bottom: 1px solid var(--border-black);
   flex-shrink: 0;
 }
 
@@ -99,7 +101,7 @@ button span {
 .postFormContainer {
   display: flex;
   padding: var(--spacing);
-  border-bottom: 10px solid rgb(230, 236, 240);
+  border-bottom: 10px solid var(--border-black);
   flex-shrink: 0;
 }
 
@@ -126,10 +128,12 @@ button span {
 .modal-header {
   border-top-left-radius: calc(1.3rem - 1px);
   border-top-right-radius: calc(1.3rem - 1px);
+  border-bottom: 1px solid var(--border-black);
 }
 .modal-footer {
   border-bottom-left-radius: calc(1.3rem - 1px);
   border-bottom-right-radius: calc(1.3rem - 1px);
+  border-top: 1px solid var(--border-black);
 }
 
 .userImageContainer {
@@ -174,7 +178,7 @@ button span {
   padding: var(--spacing);
   color: white;
   cursor: pointer;
-  border-bottom: 1px solid var(--lightGrey);
+  border-bottom: 1px solid var(--border-black);
   flex-shrink: 0;
 }
 
@@ -222,14 +226,18 @@ button span {
 .header span {
   padding-right: 5px;
 }
-
-.postButtonContainer button:hover {
-  background-color: #8fd0ff;
-  color: var(--blue);
+.postButtonContainer button {
   border-radius: 50%;
 }
-.postButtonContainer button:hover > i.fa-comment {
-  background-color: #8fd0ff;
+.postButtonContainer button:hover {
+  border-radius: 50%;
+}
+.postButtonContainer.blue button:hover {
+  background-color: #084d7e;
+  color: var(--blue);
+}
+.postButtonContainer.blue button:hover > i.fa-comment {
+  background-color: #084d7e;
   color: var(--blue);
   border-radius: 50%;
 }
@@ -262,8 +270,7 @@ button span {
 .replyFlag a {
   color: var(--blue);
 }
-.post.largeFont .postBody,
-.post.largeFont .postFooter {
+.post.largeFont .postBody {
   font-size: 24px;
 }
 .postBody {
@@ -281,4 +288,99 @@ button span {
 }
 .audioContainer {
   margin-top: 10px;
+}
+.trashCanButton:hover > .fa-trash {
+  color: var(--red);
+  background-color: var(--redBackground);
+}
+.fa-trash {
+  color: white;
+}
+.fa-envelope {
+  color: white;
+}
+.profileHeaderContainer .coverPhotoContainer {
+  height: 180px;
+  background-color: var(--blue);
+  position: relative;
+}
+.profileHeaderContainer .userImageContainer {
+  height: 132px;
+  width: 132px;
+  margin-left: var(--spacing);
+  position: absolute;
+  bottom: -66px;
+  background-color: transparent;
+}
+.profileHeaderContainer .userImageContainer img {
+  border: 4px solid white;
+}
+.profileHeaderContainer .profileButtonsContainer {
+  text-align: right;
+  padding: var(--spacing);
+  min-height: 66px;
+}
+.profileButton,
+.followButton {
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  font-weight: bold;
+  padding: 5px 15px;
+  border-radius: 60px;
+  display: inline-block;
+  margin-left: var(--spacing);
+}
+.profileButton:hover,
+.followButton:hover {
+  background-color: var(--blueBackground);
+}
+.followButton.following {
+  background-color: var(--blue);
+  color: white;
+}
+.profileHeaderContainer .userDetailsContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--spacing);
+  color: white;
+}
+.followersContainer .value {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.followersContainer span:not(.value) {
+  color: var(--greyText);
+}
+
+.followersContainer a {
+  margin-right: 15px;
+  color: white;
+}
+.followersContainer a:hover {
+  border-bottom: 1px solid black;
+}
+.tabsContainer {
+  display: flex;
+  border-bottom: 1px solid rgb(105 152 183);
+  flex-shrink: 0;
+}
+.tab {
+  flex: 1;
+  height: 52px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--greyText);
+  font-weight: bold;
+  border-top-left-radius: calc(1.3rem - 1px);
+  border-top-right-radius: calc(1.3rem - 1px);
+}
+.tab.active {
+  color: var(--blue);
+  border-bottom: 2px solid var(--blue);
+}
+.tab:hover {
+  color: var(--blue);
+  background-color: #002946;
 }

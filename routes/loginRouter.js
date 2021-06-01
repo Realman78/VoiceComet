@@ -10,6 +10,7 @@ app.set("views", "views")
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
 router.get('/', returnToHomeIfLoggedIn, (req,res)=>{
     res.render('login')
 })

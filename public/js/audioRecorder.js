@@ -114,7 +114,6 @@ function stopRecording() {
 	rec.exportWAV(createDownloadLink);
 }
 
-const recordingsList = document.getElementById('recordingsList')
 var blob2 = undefined
 function createDownloadLink(blob) {
     blob2 = blob
