@@ -44,6 +44,7 @@ router.get('/:id', async (req,res)=>{
 
 router.delete('/:id', async (req,res)=>{
     const post = await Post.findByIdAndDelete(req.params.id)
+    await Post.deleteMany({shareData: post._id})
     if (post.audioID)
         await cloudinary.uploader.destroy(post.audioID, {resource_type: 'video'}, function(result,error) { console.log(error) });
     res.send(post)

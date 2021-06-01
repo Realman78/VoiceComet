@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const router = express.Router()
 const User = require('../schemas/UserSchema')
+const Post = require('../schemas/PostSchema')
 const bcrypt = require('bcrypt')
 
 app.set("view engine", "hbs")
@@ -10,8 +11,7 @@ app.set("views", "views")
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-router.get('/:id', (req,res)=>{
-
+router.get('/:id', async (req,res)=>{
     const payload = {
         pageTitle: 'View post',
         postId: req.params.id,
