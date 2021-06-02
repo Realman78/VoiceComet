@@ -384,3 +384,8 @@ button span {
   color: var(--blue);
   background-color: #002946;
 }
+.fa-speakap {
+  font-size: 17px;
+  color: white;
+  padding-left: 10px;
+}

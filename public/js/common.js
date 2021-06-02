@@ -1,12 +1,20 @@
 const recordingsList = document.getElementById('recordingsList')
+const tx = document.getElementById("postTextarea");
+tx.setAttribute("style", "height:" + (tx.scrollHeight) + "px;overflow-y:hidden;");
+tx.addEventListener("input", OnInput, false);
 
+
+function OnInput() {
+  this.style.height = "auto";
+  this.style.height = (this.scrollHeight) + "px";
+}
 $("#postTextarea, #replyTextArea").keyup(event =>{
     var textbox = $(event.target);
     var value = textbox.val().trim();
 
     var isModal = textbox.parents(".modal").length == 1;
     
-    submitButton = isModal ? $("#submitReplyButton") : $("#submitPostButton");
+    let submitButton = isModal ? $("#submitReplyButton") : $("#submitPostButton");
 
     if(submitButton.length == 0) return alert("No submit button found");
 
