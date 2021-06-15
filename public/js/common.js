@@ -1,8 +1,6 @@
 const recordingsList = document.getElementById('recordingsList')
-const tx = document.getElementById("postTextarea");
-tx.setAttribute("style", "height:" + (tx.scrollHeight) + "px;overflow-y:hidden;");
-tx.addEventListener("input", OnInput, false);
 
+let Scontent = ''
 
 function OnInput() {
   this.style.height = "auto";
@@ -11,6 +9,7 @@ function OnInput() {
 $("#postTextarea, #replyTextArea").keyup(event =>{
     var textbox = $(event.target);
     var value = textbox.val().trim();
+    Scontent += event.key
 
     var isModal = textbox.parents(".modal").length == 1;
     
@@ -22,7 +21,6 @@ $("#postTextarea, #replyTextArea").keyup(event =>{
         submitButton.prop("disabled", true);
         return;
     }
-
     submitButton.prop("disabled", false);
 })
 
@@ -76,8 +74,8 @@ async function putPostOnWall(data, button){
     textbox.val('')
     button.prop("disabled",true);
     document.getElementById('recordingsList').innerHTML = ''
+    Scontent = ''
 }
-//OVO JE ZA DELETE POST
 $("#deletePostButton").click(()=>{
     const id = $(event.target).data("id");
 
@@ -179,6 +177,101 @@ $("#replyModal").on("hidden.bs.modal", (event)=>{
     OGPostConteiner.innerHTML = ''
 })
 
+$(document).on("click", ".followButton", async (e)=>{
+    const button = $(e.target)
+    const userId = button.data().user
+
+    fetch(`/api/users/${userId}/follow`, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }).then(async (res)=>{
+        const data = await res.json()
+        if (res.status == 400) return alert("User not found")
+
+        var difference = 1
+        if (data.following && data.following.includes(userId)){
+            button.addClass("following")
+            button.text("following")
+        }else{
+            button.removeClass("following")
+            button.text("follow")
+            difference = -1
+        }
+        var followersLabel = $("#followersValue")
+        if (followersLabel.length != 0){
+            var followersText = parseInt(followersLabel.text())
+            followersLabel.text(followersText+difference)
+        }
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+    
+})
+var cropper;
+$("#filePhoto").change(function(){
+    if (this.files && this.files[0]){
+        var reader = new FileReader()
+        reader.onload = (e)=>{
+            var image = document.getElementById('imagePreview')
+            image.src = e.target.result
+            //Cropping dio
+            if (cropper !== undefined) cropper.destroy()
+
+            cropper = new Cropper(image, {
+                aspectRatio: 1/1,
+                background: false
+            })
+        }
+        reader.readAsDataURL(this.files[0])
+    }else{
+        console.log('no')
+    }
+})
+$("#coverPhoto").change(function(){
+    if (this.files && this.files[0]){
+        var reader = new FileReader()
+        reader.onload = (e)=>{
+            var image = document.getElementById('coverPreview')
+            image.src = e.target.result
+            //Cropping dio
+            if (cropper !== undefined) cropper.destroy()
+
+            cropper = new Cropper(image, {
+                aspectRatio: 16/9,
+                background: false
+            })
+        }
+        reader.readAsDataURL(this.files[0])
+    }
+})
+$("#imageUploadButton").click(()=>{
+    var canvas = cropper.getCroppedCanvas()
+    if (!canvas) return alert('Something\'s wrong I can feel it')
+    const file = canvas.toDataURL()
+    var formData = new FormData()
+    formData.append('croppedImage', file)
+    fetch('/api/users/profilePicture', {
+        method: "POST",
+        body: formData
+    }).then((res)=> location.reload())
+    return
+})
+$("#coverPhotoButton").click(()=>{
+    var canvas = cropper.getCroppedCanvas()
+    if (!canvas) return alert('Something\'s wrong I can feel it')
+    const file = canvas.toDataURL()
+    var formData = new FormData()
+    formData.append('croppedImage', file)
+    fetch('/api/users/coverPhoto', {
+        method: "POST",
+        body: formData
+    }).then((res)=> location.reload())
+    return
+})
 function getPostId(el){
     var isRoot = el.hasClass("post")
     const rootEl = isRoot ? el : el.closest(".post")
@@ -340,7 +433,7 @@ function outputPosts(results, container){
 
 function outputPostsWithReplies(results, container){
     container.innerHTML = ''
-    if (results.replyTo !== undefined && results.replyTo._id !== undefined){
+    if (results.replyTo && results.replyTo._id !== undefined){
         const html = createPostHtml(results.replyTo)
         container.innerHTML += html
     }
@@ -355,4 +448,47 @@ function outputPostsWithReplies(results, container){
     if (results.length == 0){
         container.append("<span class='noResults'>No results found</span>")
     }
+}
+
+function outputUsers(data,container){
+    container.innerHTML = ''
+
+    data.forEach(data =>{
+        var html = createUserHtml(data, true)
+        container.innerHTML += html
+    })
+    if(data.length == 0) {
+        container.innerHTML += `<span class='noResults'>No results found</span>`
+    }
+}
+function createUserHtml(userData, showFollowButton) {
+
+    var name = userData.firstName + " " + userData.lastName;
+    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id)
+    var text = isFollowing ? "Following" : "Follow"
+    var buttonClass = isFollowing ? "followButton following" : "followButton"
+    var followButton = ''
+    if (showFollowButton && userLoggedIn._id != userData._id){
+        followButton = `<div class="followButtonContainer">
+                            <button class='${buttonClass}' data-user='${userData._id}'>${text}</button>
+                        </div>`
+    }
+
+    return `<div class='user'>
+                <div class='userImageContainer'>
+                    <img src='${userData.profilePic}'>
+                </div>
+                <div class='userDetailsContainer'>
+                    <div class='header'>
+                        <a href='/profile/${userData.username}'>${name}</a>
+                        <span class='username'>@${userData.username}</span>
+                    </div>
+                </div>
+                ${followButton}
+            </div>`;
+}
+function noResultsFoundHandler(term, container){
+        container.innerHTML = `<span class='noResults'>
+                No results found for term "${term}"
+            </span>`
 }

@@ -6,6 +6,8 @@ const Post = require('../../schemas/PostSchema')
 const multer = require('multer')
 const fetch = require('node-fetch')
 var cloudinary = require('cloudinary').v2
+var txtomp3 = require("text-to-mp3");
+
 
 cloudinary.config({ 
   cloud_name: 'dx4rhdmc6', 
@@ -23,6 +25,26 @@ router.get('/', async (req,res)=>{
         var isReply = searchObj.isReply == "true"
         searchObj.replyTo = {$exists: isReply}
         delete searchObj.isReply
+    }
+    if (searchObj.search !== undefined){
+        searchObj.content = {$regex: searchObj.search, $options: "i"}
+        delete searchObj.search
+    }
+    if (searchObj.followingOnly !== undefined){
+        var followingOnly = searchObj.followingOnly === "true"
+        if (followingOnly){
+            var objectIds = []
+            if (!req.session.user.following){
+                req.session.user.following = []
+            }
+            req.session.user.following.forEach(user=>{
+                objectIds.push(user)
+            })
+            objectIds.push(req.session.user._id)
+            searchObj.postedBy = {$in: objectIds}
+        }
+
+        delete searchObj.followingOnly
     }
     res.send(await getPosts(searchObj))
 })
@@ -85,6 +107,17 @@ router.post('/', upload.single('audioFile'),  async (req,res)=>{
     let post = await Post.create(postData).catch(e=>{console.log(e)})
     post = await User.populate(post, {path: "postedBy"})
     res.status(201).send(post)
+})
+
+router.post('/getbinary', (req,res)=>{
+    if (!req.body.content) return res.status(400).send()
+    txtomp3.attributes.tl = 'en'
+
+    txtomp3.getMp3(req.body.content).then(function(binaryStream){
+        res.send(binaryStream)
+    }).catch(function(err){
+    console.log("Error", err);
+    });
 })
 
 router.put('/:id/like', async (req,res)=>{

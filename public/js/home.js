@@ -1,6 +1,14 @@
 $(document).ready(async ()=>{
-    const res = await fetch('/api/posts')
+    const body = {
+        followingOnly: true
+    }
+    const res = await fetch('/api/posts?'+ new URLSearchParams(body))
     const data = await res.json()
     const postsContainer = document.querySelector('.postsContainer')
+    console.log(data)
     outputPosts(data, postsContainer)
 })
+
+const tx = document.getElementById("postTextarea");
+tx.setAttribute("style", "height:" + (tx.scrollHeight) + "px;overflow-y:hidden;");
+tx.addEventListener("input", OnInput, false);

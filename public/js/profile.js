@@ -1,4 +1,5 @@
 const pbc = document.querySelector('.profileButtonsContainer')
+const coverPhotoContainer = document.querySelector('.coverPhotoContainer')
 $(document).ready(async ()=>{
     if (selectedTab === "replies") {
         loadReplies()
@@ -6,8 +7,9 @@ $(document).ready(async ()=>{
        loadPosts()     
     }
     if (profileUser._id != userLoggedIn._id){
-        createFollowButton(profileUser, true)
+        createFollowButton(profileUser, userLoggedIn.following && userLoggedIn.following.includes(profileUserId))
     }
+    photosHandler()
     createTab("Posts", `/profile/${profileUser.username}`, selectedTab != "replies")
     createTab("Replies", `/profile/${profileUser.username}/replies`, selectedTab == "replies")
 })
@@ -19,7 +21,22 @@ function createFollowButton(user, isFollowing){
                     </a>
                     <button class="${buttonClass}" data-user=${user._id}>${text}</button>`
 }
-
+function photosHandler(){
+    if (profileUser.coverPhoto){
+        const img = document.createElement('img')
+        img.src=profileUser.coverPhoto
+        img.alt = 'User\'s cover photo'
+        coverPhotoContainer.appendChild(img)
+    }
+    if (profileUser._id==userLoggedIn._id){
+        coverPhotoContainer.innerHTML += `<button class="coverPhotoButton" data-toggle="modal" data-target="#coverPhotoUploadModal">
+        <i class="fas fa-camera" aria-hidden="true"></i>
+        </button>`
+        document.querySelector('.userImageContainer').innerHTML += `<button class="profilePictureButton" data-toggle="modal" data-target="#imageUploadModal">
+        <i class="fas fa-camera" aria-hidden="true"></i>
+        </button>`
+    }
+}
 function createTab(name, href, isSelected){
     const className = isSelected ? "tab active" : "tab"
     const html = `<a class="${className}" href="${href}">${name}</a>`

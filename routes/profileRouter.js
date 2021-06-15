@@ -35,7 +35,20 @@ router.get('/:username/replies', async (req,res)=>{
 
     res.render('profilePage',payload)
 })
+router.get('/:username/following', async (req,res)=>{
 
+    const payload = await getPayload(req.params.username, req.session.user)
+    payload.selectedTab = "following"
+
+    res.render('followersAndFollowing',payload)
+})
+router.get('/:username/followers', async (req,res)=>{
+
+    const payload = await getPayload(req.params.username, req.session.user)
+    payload.selectedTab = "followers"
+
+    res.render('followersAndFollowing',payload)
+})
 async function getPayload(username, userLoggedIn){
     var user = await User.findOne({username})
     if (user==null){

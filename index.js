@@ -22,14 +22,18 @@ const loginRouter = require('./routes/loginRouter')
 const postRoute = require('./routes/postRouter')
 const profileRouter = require('./routes/profileRouter')
 const logoutRoute = require('./routes/logout')
+const searchRouter = require('./routes/searchRouter')
 app.use('/login', loginRouter)
 app.use('/register', registerRouter)
 app.use('/posts',requestLogin, postRoute)
 app.use('/profile',requestLogin, profileRouter)
+app.use('/search',requestLogin, searchRouter)
 app.use('/logout', logoutRoute)
 //Api routes
 const postApiRoute = require('./routes/api/posts')
+const userApiRoute = require('./routes/api/users')
 app.use('/api/posts', postApiRoute)
+app.use('/api/users', userApiRoute)
 
 
 app.get('/', requestLogin, (req,res,next)=>{

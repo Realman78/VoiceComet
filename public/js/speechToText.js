@@ -6,7 +6,6 @@ var textbox = document.getElementById('postTextarea')
 
 var startButton = document.getElementById('startButton')
 
-var content = ''
 var isListening = false
 recognition.continuous = true
 
@@ -32,9 +31,11 @@ recognition.onresult = function (event){
 
     var transcript = event.results[current][0].transcript
     //console.log('tr - ' + transcript)
-    content += transcript
-
-    textbox.textContent = content
+    Scontent += transcript
+    //const textbox = $("#postTextarea")
+    $('#postTextarea').val(function(i, text) {
+        return Scontent;
+    });
 }
 
 startButton.addEventListener('click', (event)=>{
@@ -44,8 +45,8 @@ startButton.addEventListener('click', (event)=>{
         startButton.innerHTML = `<i class="fab fa-speakap"></i>`
         return
     }
-    if (content.length){
-        content += ''
+    if (Scontent.length){
+        Scontent += ''
     }
     recognition.start()
 })
