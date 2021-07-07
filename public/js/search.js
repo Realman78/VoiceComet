@@ -1,4 +1,3 @@
-var timer;
 $("#searchBox").keydown((e)=>{
     clearTimeout(timer)
     var textbox = $(e.target)
@@ -17,6 +16,12 @@ $("#searchBox").keydown((e)=>{
 $(document).ready(async ()=>{
     createTab("Posts", `/search`, selectedTab != "users")
     createTab("Users", `/search/users`, selectedTab == "users")
+    let value = $("#searchBox").val().trim()
+        if (value == ""){
+            $(".resultsContainer").html("")
+        }else{
+            search(value, $("#searchBox").data().search)
+        }
 })
 
 function createTab(name, href, isSelected){

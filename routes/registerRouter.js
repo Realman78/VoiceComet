@@ -27,6 +27,7 @@ router.post('/', async (req,res)=>{
             req.session.user = newUser
             return res.redirect('/')
         }else{
+            //String.fromCodePoint je za emojie
             if (user.email == email){
                 payload.errorMessage = String.fromCodePoint(0x2709) + String.fromCodePoint(0x274C) + ' E-Mail is already taken'
                 return res.render('register', payload)

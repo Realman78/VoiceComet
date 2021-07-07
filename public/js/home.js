@@ -5,7 +5,6 @@ $(document).ready(async ()=>{
     const res = await fetch('/api/posts?'+ new URLSearchParams(body))
     const data = await res.json()
     const postsContainer = document.querySelector('.postsContainer')
-    console.log(data)
     outputPosts(data, postsContainer)
 })
 

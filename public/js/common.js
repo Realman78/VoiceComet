@@ -1,6 +1,23 @@
 const recordingsList = document.getElementById('recordingsList')
 
 let Scontent = ''
+var selectedUsers = []
+document.addEventListener('keyup', (e) => {
+  if (e.code === "KeyP"){
+      if(document.activeElement.tagName === "BODY"){
+        if (isListening){
+            recognition.stop()
+            isListening = false
+            startButton.innerHTML = `<i class="fab fa-speakap"></i>`
+            return
+        }
+        if (Scontent.length){
+            Scontent += ''
+        }
+        recognition.start()
+      }
+  }
+});
 
 function OnInput() {
   this.style.height = "auto";
@@ -272,6 +289,46 @@ $("#coverPhotoButton").click(()=>{
     }).then((res)=> location.reload())
     return
 })
+
+var timer
+$("#userSearchTextbox").keydown((e)=>{
+    clearTimeout(timer)
+    var textbox = $(e.target)
+    var value = textbox.val()
+    if (value == "" && (event.which == 8 || e.keyCode == 8)){
+        selectedUsers.pop()
+        updateSelectedUsersHtml()
+        $(".resultsContainer").html("")
+        if (selectedUsers.length == 0) {
+            $("#createChatButton").prop("disabled", true)
+        }
+        return
+    }
+    timer = setTimeout(()=>{
+        value = textbox.val().trim()
+        if (value == ""){
+            $(".resultsContainer").html("")
+        }else{
+            searchUsers(value)
+        }
+    }, 1000)
+})
+
+$("#createChatButton").click(()=>{
+    var data = JSON.stringify({
+        users: selectedUsers
+    })
+    fetch('/api/chats', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: data
+    }).then((res)=>res.json()).then((data)=>{
+        window.location.href = `/messages/${data._id}`
+    })
+})
 function getPostId(el){
     var isRoot = el.hasClass("post")
     const rootEl = isRoot ? el : el.closest(".post")
@@ -491,4 +548,61 @@ function noResultsFoundHandler(term, container){
         container.innerHTML = `<span class='noResults'>
                 No results found for term "${term}"
             </span>`
+}
+function outputSelectableUsers(data,container){
+    container.html("")
+
+    data.forEach(res =>{
+        if (res._id == userLoggedIn._id || selectedUsers.some(u=>u._id == res._id)){
+            return
+        }
+        var html = createUserHtml(res, false)
+        var element = $(html)
+        element.click(()=>userSelected(res))
+        container.append(element)
+    })
+    if(data.length == 0) {
+        container.innerHTML += `<span class='noResults'>No results found</span>`
+    }
+}
+function searchUsers(searchTerm){
+    const body = {
+        search: searchTerm
+    }
+    fetch("/api/users?"  + new URLSearchParams(body)).then((res)=>res.json()).then((data)=>{
+        outputSelectableUsers(data, $('.resultsContainer'))
+    })
+}
+function userSelected(res){
+    selectedUsers.push(res)
+    updateSelectedUsersHtml()
+    $("#userSearchTextbox").val("").focus()
+    $(".resultsContainer").html("")
+    $("#createChatButton").prop("disabled", false)
+}
+function updateSelectedUsersHtml(){
+    var elements = []
+
+    selectedUsers.forEach(user=>{
+        var name = user.firstName + " " + user.lastName
+        var userElement = $(`<span class='selectedUser'>${name}</span>`)
+        elements.push(userElement)
+    })
+
+    $(".selectedUser").remove()
+    $("#selectedUsers").prepend(elements)
+}
+function getChatName(chatData){
+    var chatName = chatData.chatName
+    if (!chatName) {
+        var otherChatUsers = getOtherChatUsers(chatData.users)
+        var namesArray = otherChatUsers.map(user => user.firstName + ' ' + user.lastName)
+        chatName = namesArray.join(', ')
+    }
+    return chatName
+}
+
+function getOtherChatUsers(users){
+    if (users.length == 1) return users
+    return users.filter(user=>user._id != userLoggedIn._id)
 }

@@ -23,17 +23,23 @@ const postRoute = require('./routes/postRouter')
 const profileRouter = require('./routes/profileRouter')
 const logoutRoute = require('./routes/logout')
 const searchRouter = require('./routes/searchRouter')
+const messagesRouter = require('./routes/messagesRouter')
 app.use('/login', loginRouter)
 app.use('/register', registerRouter)
 app.use('/posts',requestLogin, postRoute)
 app.use('/profile',requestLogin, profileRouter)
 app.use('/search',requestLogin, searchRouter)
+app.use('/messages',requestLogin, messagesRouter)
 app.use('/logout', logoutRoute)
 //Api routes
 const postApiRoute = require('./routes/api/posts')
 const userApiRoute = require('./routes/api/users')
+const chatsApiRoute = require('./routes/api/chats')
+const messagesApiRoute = require('./routes/api/messages')
 app.use('/api/posts', postApiRoute)
 app.use('/api/users', userApiRoute)
+app.use('/api/chats', chatsApiRoute)
+app.use('/api/messages', messagesApiRoute)
 
 
 app.get('/', requestLogin, (req,res,next)=>{

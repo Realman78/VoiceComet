@@ -78,7 +78,6 @@ router.get('/:userId/followers', async (req,res)=>{
         console.log(e)
         res.sendStatus(400)
     })
-
     res.send(user)
 })
 
