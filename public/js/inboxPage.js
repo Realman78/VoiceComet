@@ -4,6 +4,7 @@ $(document).ready(async ()=>{
     if (!data){
         return alert('Something went wrong')
     }
+    $(".loadingSpinnerContainer").remove()
     outputChatList(data, $(".resultsContainer"))
 })
 
