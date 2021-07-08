@@ -1,3 +1,7 @@
+*:not(.loginContainer) {
+  outline: none !important;
+  background-color: #192329;
+}
 .wrapper {
   display: flex;
   justify-content: center;
@@ -9,7 +13,8 @@
   width: 80%;
   max-width: 500px;
   border: 1px solid #dedede;
-  background-color: rgb(182, 216, 231);
+  border-radius: 8px;
+  /* background-color: rgb(182, 216, 231); */
   text-align: center;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
@@ -19,6 +24,9 @@
 form {
   display: flex;
   flex-direction: column;
+}
+h1 {
+  color: white;
 }
 
 input[type="text"],
@@ -46,6 +54,7 @@ input[type="submit"] {
 i {
   font-size: 200px;
   transform: rotate(200deg);
+  color: white;
 }
 input::-webkit-input-placeholder {
   -webkit-box-shadow: 0 0 0 30px white inset !important;
