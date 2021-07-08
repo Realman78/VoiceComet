@@ -700,13 +700,21 @@ label {
   display: flex;
   align-items: flex-end;
   flex-shrink: 0;
-  -webkit-flex: 0;
 }
+.typingDots img,
 .chatMessages .message .messageBody {
   background-color: #f1f0f0;
   padding: 6px 12px;
   border-radius: 18px;
   font-size: 16px;
+}
+.typingDots img {
+  height: 35px;
+}
+.typingDots {
+  padding: var(--spacing);
+  padding-bottom: 0;
+  display: none;
 }
 .chatMessages .message .messageContainer {
   display: flex;
@@ -757,7 +765,7 @@ label {
   border-top-left-radius: 2px;
 }
 .senderName {
-  color: rgba(0, 0, 0, 0.4);
+  color: rgb(255 255 255 / 40%);
 }
 .chatMessages .imageContainer {
   height: 24px;
@@ -781,4 +789,7 @@ label {
 .loadingSpinnerContainer img {
   width: 50%;
   max-width: 75px;
+}
+ul {
+  margin: 0;
 }
