@@ -1,5 +1,5 @@
 var connected = false
-var socket = io("http://localhost:3000");
+var socket = io("https://voice-comet.herokuapp.com");
 
 socket.emit('setup', userLoggedIn)
 
