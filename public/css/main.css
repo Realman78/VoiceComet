@@ -82,7 +82,7 @@ nav a:hover > i {
 
 .wrapper > .row {
   margin: 0;
-  height: 100%;
+  height: auto;
 }
 
 button {

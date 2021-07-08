@@ -46,7 +46,7 @@ startButton.addEventListener('click', (event)=>{
         return
     }
     if (Scontent.length){
-        Scontent += ''
+        Scontent = ''
     }
     recognition.start()
 })

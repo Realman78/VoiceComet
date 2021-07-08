@@ -533,7 +533,7 @@ function createUserHtml(userData, showFollowButton) {
 
     return `<div class='user'>
                 <div class='userImageContainer'>
-                    <img src='${userData.profilePic}'>
+                    <a href='/profile/${userData.username}'><img src='${userData.profilePic}'></a>
                 </div>
                 <div class='userDetailsContainer'>
                     <div class='header'>
