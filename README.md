@@ -4,6 +4,7 @@ NEXT:
 - notifications for message, follow, like and so on.  
 - Photo and video upload to chats and feed  
 - voice command text messaging  
+- Refactor so that I dont use the same HTML code in almost every view  
       
 Feed
 ![Feed](https://media.discordapp.net/attachments/769282603651956749/862701767866318878/unknown.png)
