@@ -148,7 +148,7 @@ function addChatMessageHtml(message) {
     }
 
     var messageDiv = createMessageHtml(message, null, "");
-
+    markAllMessagesAsRead()
     addMessagesHtmlToPage(messageDiv)
     scrollToBottom(true)
 }
