@@ -28,6 +28,7 @@ const profileRouter = require('./routes/profileRouter')
 const logoutRoute = require('./routes/logout')
 const searchRouter = require('./routes/searchRouter')
 const messagesRouter = require('./routes/messagesRouter')
+const notificationsRoute = require('./routes/notificationsRoute')
 app.use('/login', loginRouter)
 app.use('/register', registerRouter)
 app.use('/posts',requestLogin, postRoute)
@@ -35,15 +36,18 @@ app.use('/profile',requestLogin, profileRouter)
 app.use('/search',requestLogin, searchRouter)
 app.use('/messages',requestLogin, messagesRouter)
 app.use('/logout', logoutRoute)
+app.use('/notifications', requestLogin, notificationsRoute)
 //Api routes
 const postApiRoute = require('./routes/api/posts')
 const userApiRoute = require('./routes/api/users')
 const chatsApiRoute = require('./routes/api/chats')
 const messagesApiRoute = require('./routes/api/messages')
+const notificationsApiRoute = require('./routes/api/notifications')
 app.use('/api/posts', postApiRoute)
 app.use('/api/users', userApiRoute)
 app.use('/api/chats', chatsApiRoute)
 app.use('/api/messages', messagesApiRoute)
+app.use('/api/notifications', notificationsApiRoute)
 
 
 app.get('/', requestLogin, (req,res,next)=>{
@@ -71,6 +75,9 @@ io.on('connection', (socket) =>{
     })
     socket.on("stop typing", room=>{
         socket.in(room).emit("stop typing")
+    })
+    socket.on("notification received", room=>{
+        socket.in(room).emit("notification received")
     })
     socket.on("new message", newMessage=>{
         var chat = newMessage.chat

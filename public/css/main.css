@@ -1,7 +1,7 @@
 :root {
   --blue: #1fa2f1;
   --blueLight: #9bd1f9;
-  --buttonHoverBg: #03406b;
+  --buttonHoverBg: #034079;
   --lightGrey: rgb(230, 236, 240);
   --spacing: 15px;
   --greyText: rgb(101, 119, 134);
@@ -32,7 +32,7 @@ a {
   padding: var(--spacing);
 }
 a:hover {
-  color: rgb(187, 187, 187);
+  color: rgb(187, 187, 187) !important;
   text-decoration: none;
 }
 
@@ -59,6 +59,7 @@ nav a {
   align-items: center;
   justify-content: center;
   color: #ffffff;
+  position: relative;
 }
 
 nav a.blue {
@@ -557,7 +558,7 @@ label {
   border-bottom: 1px solid var(--border-black);
 }
 .resultListItem:hover {
-  background-color: #1b1e23;
+  background-color: 1b1e23;
 }
 .resultListItem:hover > .resultsDetailsContainer .heading,
 .resultListItem:hover > .resultsDetailsContainer .subText {
@@ -571,10 +572,12 @@ label {
 .resultsDetailsContainer .heading {
   color: white;
   font-weight: 500;
+  /* background-color: thistle; */
 }
 .resultsDetailsContainer .subText {
   color: var(--lightGrey);
   font-size: 14px;
+  /* background-color: #9cb7cc6c; */
 }
 .resultListItem img {
   height: 100%;
@@ -792,4 +795,76 @@ label {
 }
 ul {
   margin: 0;
+}
+.resultListItem {
+  color: white;
+}
+.resultListItem.active {
+  background-color: #5d778c73;
+}
+
+.resultListItem.notification * {
+  pointer-events: none;
+  background: transparent;
+}
+#notificationList .resultListItem.active .resultsImageContainer {
+  background-color: transparent;
+}
+#notificationList .resultListItem.notification * {
+  pointer-events: none;
+  background: transparent;
+}
+#notificationBadge,
+#messagesBadge {
+  background-color: var(--red);
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+#notificationBadge.active,
+#messagesBadge.active {
+  visibility: visible;
+}
+#notificationList {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+  width: 350px;
+  background-color: #9cb7cc6c;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+#notificationList .active {
+  background-color: #5d778c73;
+}
+#notificationList .resultsImageContainer {
+  background-color: transparent;
+}
+#notificationList .resultsDetailsContainer .heading {
+  background-color: #9cb7cc6c;
+}
+#notificationList .resultsDetailsContainer .subText {
+  background-color: #9cb7cc6c;
+}
+
+.resultListItem.active:not(.notification) * {
+  background-color: transparent;
+}
+#notificationList .resultListItem.active.check .resultsDetailsContainer * {
+  background-color: transparent;
+}
+.resultListItem.active.check:hover *,
+.resultListItem:hover * {
+  background-color: transparent;
+  color: rgb(187, 187, 187);
 }

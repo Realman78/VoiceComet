@@ -3,6 +3,7 @@ const app = express()
 const router = express.Router()
 const User = require('../../schemas/UserSchema')
 const Post = require('../../schemas/PostSchema')
+const Notification = require('../../schemas/NotificationSchema')
 const multer = require('multer')
 const fetch = require('node-fetch')
 var cloudinary = require('cloudinary').v2
@@ -106,6 +107,10 @@ router.post('/', upload.single('audioFile'),  async (req,res)=>{
     
     let post = await Post.create(postData).catch(e=>{console.log(e)})
     post = await User.populate(post, {path: "postedBy"})
+    post = await Post.populate(post, {path: "replyTo"})
+    if (post.replyTo !== undefined){
+        await Notification.insertNotification(post.replyTo.postedBy, req.session.user._id, "reply", post._id)
+    }
     res.status(201).send(post)
 })
 
@@ -134,6 +139,9 @@ router.put('/:id/like', async (req,res)=>{
     .catch((err=>{
         console.log(err)
     }))
+    if (!isLiked){
+        await Notification.insertNotification(post.postedBy, req.session.user._id, "postLike", post._id)
+    }
     res.status(200).send(post)
 })
 
@@ -169,6 +177,9 @@ router.post('/:id/share', async (req,res)=>{
         console.log(error);
         res.sendStatus(400);
     })
+    if (!deletedPost){
+        await Notification.insertNotification(post.postedBy, req.session.user._id, "share", post._id)
+    }
 
     res.status(200).send(post)
 })

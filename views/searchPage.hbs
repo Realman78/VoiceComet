@@ -19,9 +19,14 @@
     <div class="wrapper">
         <div class="row">
             <nav class="col-2 d-flex"><a class="blue" href="/"><i class="fas fa-meteor"></i></a><a href="/"><i
-                        class="fas fa-home"></i></a><a href="/search"><i class="fas fa-search"></i></a><a
-                    href="/notifications"><i class="fas fa-bell"></i></a><a href="/messages"><i
-                        class="fas fa-envelope"></i></a><a href="/profile"><i class="fas fa-user"></i></a><a
+                        class="fas fa-home"></i></a><a href="/search"><i class="fas fa-search"></i></a><a href="/notifications">
+                            <i class="fas fa-bell"></i>
+                            <span id="notificationBadge">3</span>
+                        </a>
+                        <a href="/messages">
+                            <i class="fas fa-envelope"></i>
+                            <span id="messagesBadge">3</span>
+                        </a><a href="/profile"><i class="fas fa-user"></i></a><a
                     href="/logout"><i class="fas fa-sign-out-alt"></i></a></nav>
             <div class="mainSectionContainer col-10 col-md-8 col-lg-6">
                 <div class="titleContainer">
@@ -99,6 +104,9 @@
             </div>
             <div class="d-none d-md-block col-md-2 col-lg-4"></div>
         </div>
+    </div>
+    <div id="notificationList">
+    
     </div>
     <script src="https://kit.fontawesome.com/85404227e2.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"

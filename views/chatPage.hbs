@@ -28,9 +28,11 @@
                 </a>
                 <a href="/notifications">
                     <i class="fas fa-bell"></i>
+                    <span id="notificationBadge">3</span>
                 </a>
                 <a href="/messages">
                     <i class="fas fa-envelope"></i>
+                    <span id="messagesBadge">3</span>
                 </a>
                 <a href="/profile">
                     <i class="fas fa-user"></i>
@@ -47,7 +49,7 @@
                     //var profileUserId = profileUser._id
                     var errorMessage = "{{errorMessage}}"
                     var chatData = {{{chat}}}
-                    //var chatId = {{chatData._id}}
+                    var chatId = "{{chatId}}"
                 </script>
                 {{!-- <span class="errorMessage">{{errorMessage}}</span> --}}
                 <div class="chatPageContainer">
@@ -61,7 +63,7 @@
                         <div class="loadingSpinnerContainer">
                             <img src="/images/spinner.gif" alt="Loading spinner">
                         </div>
-                        <div class="chatContainer" style="visibility: hidden;">
+                        <div class="chatContainer" style="visibility: hidden;" data-room={{chatId}}>
                             <ul class="chatMessages">
 
                             </ul>
@@ -101,6 +103,9 @@
             </div>
             <div class="d-none d-md-block col-md-2 col-lg-4"></div>
         </div>
+    </div>
+    <div id="notificationList">
+    
     </div>
     <script src="https://kit.fontawesome.com/85404227e2.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"

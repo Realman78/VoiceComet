@@ -2,6 +2,10 @@ const recordingsList = document.getElementById('recordingsList')
 
 let Scontent = ''
 var selectedUsers = []
+$(document).ready(()=>{
+    refreshMessagesBadge()
+    refreshNotificationsBadge()
+})
 document.addEventListener('keyup', (e) => {
   if (e.code === "KeyP"){
       if(document.activeElement.tagName === "BODY"){
@@ -84,7 +88,11 @@ $("#submitPostButton, #submitReplyButton").click(async (event)=>{
 
 })
 async function putPostOnWall(data, button){
-    if (data.replyTo) return location.reload()
+    if (data.replyTo) {
+        emitNotification(data.replyTo.postedBy)
+        location.reload()
+        return
+    }
     const textbox = $("#postTextarea")
     const html = createPostHtml(data)
     $(".postsContainer").prepend(html);
@@ -144,6 +152,7 @@ $(document).on("click", ".likeButton", async (e)=>{
 
         if (data.likes.includes(userLoggedIn._id)){
             button.addClass("active")
+            emitNotification(data.postedBy)
         }else{
             button.removeClass("active")
         }
@@ -170,6 +179,7 @@ $(document).on("click", ".retweetButton", async (e)=>{
 
         if (data.shareUsers.includes(userLoggedIn._id)){
             button.addClass("active")
+            emitNotification(data.postedBy)
         }else{
             button.removeClass("active")
         }
@@ -212,6 +222,7 @@ $(document).on("click", ".followButton", async (e)=>{
         if (data.following && data.following.includes(userId)){
             button.addClass("following")
             button.text("following")
+            emitNotification(userId)
         }else{
             button.removeClass("following")
             button.text("follow")
@@ -288,6 +299,16 @@ $("#coverPhotoButton").click(()=>{
         body: formData
     }).then((res)=> location.reload())
     return
+})
+$(document).on('click', ".notification.active", (e)=>{
+    var container = $(e.target)
+    var notificationId = container.data().id
+
+    var href = container.attr("href")
+    e.preventDefault()
+
+    var callback = () => window.location = href
+    markNotificationAsOpened(notificationId, callback)
 })
 
 var timer
@@ -607,9 +628,163 @@ function getOtherChatUsers(users){
     return users.filter(user=>user._id != userLoggedIn._id)
 }
 function messageRecieved(newMessage){
-    if ($(".chatContainer").length == 0){
-        //Show popup
+    if ($(`[data-room="${newMessage.chat._id}"]`).length == 0){
+        showMessagePopup(newMessage)
     }else{
         addChatMessageHtml(newMessage)
     }
+    refreshMessagesBadge()
+}
+function markNotificationAsOpened(notificationId = null, callback = null){
+    if (callback == null) callback = () => location.reload()
+
+    var url = notificationId != null ? `/api/notifications/${notificationId}/markAsOpened`:`/api/notifications/markAsOpened`
+    fetch(url, {
+        method: "PUT",
+    }).then(callback())
+}
+async function refreshMessagesBadge(){
+    const body = {
+        unreadOnly: true
+    }
+    const res = await fetch('/api/chats?'+ new URLSearchParams(body))
+    const data = await res.json()
+    var numRes = data.length
+    if (numRes > 0){
+        $("#messagesBadge").text(numRes).addClass("active")
+    }else{
+        $("#messagesBadge").text("").removeClass("active")
+    }
+}
+async function refreshNotificationsBadge(){
+    const body = {
+        unreadOnly: true
+    }
+    const res = await fetch('/api/notifications?'+ new URLSearchParams(body))
+    const data = await res.json()
+    var numRes = data.length
+    if (numRes > 0){
+        $("#notificationBadge").text(numRes).addClass("active")
+    }else{
+        $("#notificationBadge").text("").removeClass("active")
+    }
+}
+function outputNotificationList(notifications, container) {
+    notifications.forEach(notification => {
+        var html = createNotificationHtml(notification);
+        container.append(html);
+    })
+
+    if(notifications.length == 0) {
+        container.append("<span class='noResults'>Nothing to show.</span>");
+    }
+}
+function createNotificationHtml(notification) {
+    var userFrom = notification.userFrom;
+    var text = getNotificationText(notification)
+    var href = getNotificationUrl(notification)
+    var className = notification.opened ? "" : "active"
+
+    return `<a href='${href}' class='resultListItem notification ${className} check' data-id='${notification._id}'>
+                <div class='resultsImageContainer'>
+                    <img src='${userFrom.profilePic}'>
+                </div>
+                <div class='resultsDetailsContainer ellipsis'>
+                    <span class='ellipsis'>${text}</span>
+                </div>
+            </a>`;
+}
+function getNotificationText(notification){
+    var userFrom = notification.userFrom
+    if (!userFrom.firstName || !userFrom.lastName){
+        return alert('User not populated')
+    }
+    var userFromName = `${userFrom.firstName} ${userFrom.lastName}`
+    var text;
+    if (notification.notificationType == "share"){
+        text = `${userFromName} shared one of your posts`
+    }
+    else if (notification.notificationType == "postLike"){
+        text = `${userFromName} liked one of your posts`
+    }
+    else if (notification.notificationType == "reply"){
+        text = `${userFromName} replied to one of your posts`
+    }
+    else if (notification.notificationType == "follow"){
+        text = `${userFromName} followed you`
+    }
+    return `<span class='ellipsis'>${text}</span>`
+}
+function getNotificationUrl(notification){
+    var url="#";
+    if (notification.notificationType == "share" ||
+         notification.notificationType == "postLike" ||
+         notification.notificationType == "reply"){
+        url = `/posts/${notification.entityId}`
+    }
+    else if (notification.notificationType == "follow"){
+        url = `/profile/${notification.entityId}`
+    }
+    return url
+}
+function showNotificationPopup(data){
+    var html = createNotificationHtml(data)
+    var element = $(html)
+    element.hide().prependTo("#notificationList").slideDown("fast")
+
+    setTimeout(()=>{
+        element.fadeOut(400)
+    }, 5000)
+}
+function createChatHtml(chatData) {
+    var chatName = getChatName(chatData);
+    var image = getChatImageElements(chatData)
+    var latestMessage = getLatestMessage(chatData.latestMessage);
+
+    var activeClass = !chatData.latestMessage || chatData.latestMessage.readBy.includes(userLoggedIn._id) ? "" : "active"
+    
+    return `<a href='/messages/${chatData._id}' class='resultListItem ${activeClass} check'>
+                ${image}
+                <div class='resultsDetailsContainer ellipsis'>
+                    <span class='heading ellipsis'>${chatName}</span>
+                    <span class='subText ellipsis'>${latestMessage}</span>
+                </div>
+            </a>`;
+}
+
+function getLatestMessage(latestMessage){
+    if (latestMessage != null){
+        var sender = latestMessage.sender
+        return `${sender.firstName} ${sender.lastName}: ${latestMessage.content}`
+    }
+    return "New chat"
+}
+
+function getChatImageElements(chatData){
+    console.log(chatData)
+    var otherChatUsers = getOtherChatUsers(chatData.users)
+
+    var groupChatClass = ""
+    var chatImage = getUserChatImageElement(otherChatUsers[0])
+    if (otherChatUsers.length > 1){
+        groupChatClass = "groupChatImage"
+        chatImage += getUserChatImageElement(otherChatUsers[1])
+    }
+    return `<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`
+}
+function getUserChatImageElement(user){
+    if (!user || !user.profilePic) return alert('Invalid user passed')
+    return `<img src='${user.profilePic}' alt='User's profile pic'>`
+}
+function showMessagePopup(data){
+    if (!data.chat.latestMessage._id){
+        data.chat.latestMessage = data
+    }
+    var html = createChatHtml(data.chat)
+    var element = $(html)
+    element.hide().prependTo("#notificationList").slideDown("fast")
+
+    setTimeout(()=>{
+        element.fadeOut(400)
+    }, 5000)
 }

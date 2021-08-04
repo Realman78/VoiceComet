@@ -5,33 +5,44 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="/css/main.css">
-    <title>Following page</title>
+    <title>Notifications Page</title>
     <link rel="icon" href="/images/comet.png" type="image/icon type">
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/css/main.css" />
 </head>
 
 <body>
-
     <div class="wrapper">
         <div class="row">
-            <nav class="col-2 d-flex"><a class="blue" href="/"><i class="fas fa-meteor"></i></a><a href="/"><i
-                        class="fas fa-home"></i></a><a href="/search"><i class="fas fa-search"></i></a>
-                        <a href="/notifications">
-                            <i class="fas fa-bell"></i>
-                            <span id="notificationBadge">3</span>
-                        </a>
-                        <a href="/messages">
-                            <i class="fas fa-envelope"></i>
-                            <span id="messagesBadge">3</span>
-                        </a>
-                        <a href="/profile"><i class="fas fa-user"></i></a><a
-                    href="/logout"><i class="fas fa-sign-out-alt"></i></a></nav>
+            <nav class="col-2 d-flex">
+                <a class="blue" href="/">
+                    <i class="fas fa-meteor"></i>
+                </a>
+                <a href="/">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="/search">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="/notifications">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationBadge">3</span>
+                </a>
+                <a href="/messages">
+                    <i class="fas fa-envelope"></i>
+                    <span id="messagesBadge">3</span>
+                </a>
+                <a href="/profile">
+                    <i class="fas fa-user"></i>
+                </a>
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+            </nav>
             <div class="mainSectionContainer col-10 col-md-8 col-lg-6">
                 <div class="titleContainer">
                     <h1>{{pageTitle}}</h1>
+                    <button id="markNotificationsAsRead"><i style="color: white;" class="fas fa-check-double"></i></button>
                 </div>
                 <script>
                     var userLoggedIn = {{{ userLoggedInJs }}}
@@ -40,13 +51,9 @@
                     var selectedTab = '{{selectedTab}}'
                 </script>
 
-                <div class="tabsContainer">
-
-                </div>
                 <div class="resultsContainer">
-
+                    
                 </div>
-
             </div>
             <div class="d-none d-md-block col-md-2 col-lg-4"></div>
         </div>
@@ -68,8 +75,8 @@
             crossorigin="anonymous"></script>
     <script src="/js/common.js"></script>
     <script src="/js/clientSocket.js"></script>
+    <script src="/js/notificationsPage.js"></script>
 
-    <script src="/js/followersAndFollowing.js"></script>
 </body>
 
 </html>

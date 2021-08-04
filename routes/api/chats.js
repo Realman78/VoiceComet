@@ -34,6 +34,10 @@ router.get('/', async (req,res)=>{
     .populate("latestMessage")
     .sort({updatedAt: -1})
     .catch((e)=>console.log(e))
+    if (req.query.unreadOnly !== undefined && req.query.unreadOnly == "true"){
+        chats = chats.filter(r => r.latestMessage && !r.latestMessage.readBy.includes(req.session.user._id))
+    }
+    
     chats = await User.populate(chats, {path: "latestMessage.sender"})
     res.send(chats)
 })
@@ -53,5 +57,10 @@ router.get('/:chatId/messages', async (req,res)=>{
     .populate("sender")
     .catch((e)=>console.log(e))
     res.send(chats)
+})
+router.put('/:chatId/messages/markAsRead', async (req,res)=>{
+    await Message.updateMany({chat: req.params.chatId}, {$addToSet: {readBy: req.session.user._id}})
+    .catch((e)=>console.log(e))
+    res.sendStatus(204)
 })
 module.exports = router

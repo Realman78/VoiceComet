@@ -59,7 +59,8 @@ router.get('/:chatId', async (req,res)=>{
         payload.errorMessage = "Chat does not exist"
     }else{
         payload.chat = JSON.stringify(chat),
-        payload.chatName = chat.chatName
+        payload.chatName = chat.chatName,
+        payload.chatId = chat._id
     }
 
 

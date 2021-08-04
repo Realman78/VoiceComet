@@ -3,6 +3,7 @@ const app = express()
 const router = express.Router()
 const User = require('../../schemas/UserSchema')
 const Post = require('../../schemas/PostSchema')
+const Notification = require('../../schemas/NotificationSchema')
 const multer = require('multer')
 const upload = multer({
     limits:{
@@ -58,7 +59,9 @@ router.put('/:userId/follow', async (req,res)=>{
     .catch((err=>{
         console.log(err)
     }))
-
+    if (!isFollowing){
+        await Notification.insertNotification(userId, req.session.user._id, "follow", req.session.user._id)
+    }
     res.send(req.session.user)
 })
 
