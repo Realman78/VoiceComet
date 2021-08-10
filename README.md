@@ -1,7 +1,6 @@
 # VoiceComet
 Social networking app with added features for audio files posting.  
 NEXT:  
-- notifications for message, follow, like and so on.  
 - Photo and video upload to chats and feed  
 - voice command text messaging  
 - Refactor so that I dont use the same HTML code in almost every view  
